@@ -1,17 +1,13 @@
 const path = require('path');
-
 const { ModuleFederationPlugin } = require('webpack').container;
 
 module.exports = {
-  entry: './src/main.tsx',
-  mode: 'production',
+  entry: {
+    app: './src/index.ts',
+  },
+  mode: 'development',
   target: 'web',
   devtool: false,
-  output: {
-    libraryTarget: 'system',
-    libraryExport: 'main',
-    publicPath: 'http://localhost:3333/',
-  },
   optimization: {
     // minimize: true,
   },
@@ -28,15 +24,7 @@ module.exports = {
         loader: 'babel-loader',
         exclude: /node_modules/,
         options: {
-          presets: ['@babel/preset-react'],
-        },
-      },
-      {
-        test: /\.(png|jpg|jpeg|gif|svg|webp)$/,
-        loader: 'url-loader',
-        options: {
-          limit: 8192,
-          name: 'statics/imgs/[name].[hash].[ext]',
+          presets: ['@babel/preset-typescript'],
         },
       },
       {
@@ -46,45 +34,27 @@ module.exports = {
             loader: 'style-loader',
           },
           'css-loader',
+          'sass-loader',
         ],
       },
     ],
   },
-  // externals: ["react", "react-dom"],
   plugins: [
     new ModuleFederationPlugin({
-      name: 'autoetl_plugin_example',
+      name: 'aTour',
       filename: 'remoteEntry.js',
       exposes: {
-        '.': './src/entry.ts',
-        './manifest.json': './manifest.json',
+        '.': './src/index.ts',
       },
-      shared: {
-        react: {
-          singleton: true,
-          requiredVersion: '^17.0.0',
-        },
-        'react-dom': {
-          singleton: true,
-          requiredVersion: '^17.0.0',
-        },
-        antd: {
-          singleton: true,
-        },
-        mobx: {
-          singleton: true,
-        },
-        'use-mobx-observable': {
-          singleton: true,
-        },
-      },
+      shared: {},
     }),
   ],
   devServer: {
     static: {
       directory: path.join(__dirname),
     },
-    port: 3333,
+    port: 3335,
+    historyApiFallback: true,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',

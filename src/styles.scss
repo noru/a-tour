@@ -1,0 +1,52 @@
+
+
+.a-tour-wrapper {
+  position: absolute;
+  z-index: 99999;
+  width: 200px;
+  height: 200px;
+  top: 44%;
+  left: 44%;
+  transition: all .3s ease-in-out;
+  pointer-events: none;
+  .a-tour-overlay {
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: all;
+  }
+  .a-tour-highlight {
+    box-shadow: rgba(33, 33, 33, .7) 0px 0px 0px 5000px;
+    transition: all .5s ease-in-out;
+    min-height: 0;
+    min-width: 0;
+    pointer-events: none;
+  }
+  .a-tour-hint {
+    min-width: 400px;
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #ccc;
+    pointer-events: all;
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: #558ED2;
+      padding: 0 12px;
+    }
+    label {
+      cursor: pointer;
+      color: #999;
+      input {
+        display: inline-block;
+        margin-right: 5px;
+        position: relative;
+        top: 2px;
+      }
+    }
+  }
+}
