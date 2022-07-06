@@ -1,12 +1,10 @@
 
 
 .a-tour-wrapper {
+  --primary-color: #558ED2;
   position: absolute;
   z-index: 99999;
-  width: 200px;
-  height: 200px;
-  top: 44%;
-  left: 44%;
+  width: 250px;
   transition: all .3s ease-in-out;
   pointer-events: none;
   .a-tour-overlay {
@@ -31,11 +29,13 @@
     background: white;
     border: 1px solid #ccc;
     pointer-events: all;
+    transition: all .3s ease-in-out;
+
     button {
       cursor: pointer;
       border: none;
       background: none;
-      color: #558ED2;
+      color: var(--primary-color);
       padding: 0 12px;
     }
     label {
@@ -46,6 +46,25 @@
         margin-right: 5px;
         position: relative;
         top: 2px;
+      }
+    }
+  }
+  .a-tour-actions {
+    text-align: right;
+    label {
+      float: left;
+    }
+    .a-tour-btn {
+
+      &.next-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 3px;
+        padding: 3px 8px;
+        &:disabled {
+          background-color: #ccc;
+          cursor: not-allowed;
+        }
       }
     }
   }

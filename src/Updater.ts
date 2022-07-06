@@ -1,10 +1,27 @@
-import { checkBottomSpace, getOverflowX, getPosition, getTarget, HTMLElementGetter, Step } from './utils/chore'
+import { checkBottomSpace, getOverflowX, getPosition, getTarget, Step } from './utils/chore'
 import './styles.scss'
-import { getOffset } from './utils/getOffset'
 
-export class Stage {
+
+const Template = `
+<div class="a-tour-wrapper">
+  <div class="a-tour-overlay"></div>
+  <div class="a-tour-highlight"></div>
+  <div class="a-tour-hint">
+    <h1 class="a-tour-hint-title"></h1>
+    <p class="a-tour-hint-text"></p>
+    <div class="a-tour-actions">
+      <label><input class="a-tour-dont-show-again" type="checkbox">Don't show again</label>
+      <button class="a-tour-btn skip-btn">Skip</button>
+      <button class="a-tour-btn prev-btn">Prev</button>
+      <button class="a-tour-btn next-btn">Next</button>
+    </div>
+  </div>
+</div>
+`
+export class Updater {
 
   mounted = false
+  index: number = -1
   container = document.body
 
   wrapper!: HTMLDivElement
@@ -20,21 +37,17 @@ export class Stage {
 
   onNext: () => void
   onPrev: () => void
-  onSkip: () => void
+  onSkip: (dontShowAgain: boolean) => void
 
-  constructor(onNext: () => void, onPrev: () => void, onSkip: (dontShowAgain: boolean) => void) {
-    this.onNext = onNext
-    this.onPrev = onPrev
-    this.onSkip = () => {
-      onSkip(this.dontShowAgain.checked)
-    }
+  constructor(go: (idx: number, dontShowAgain: boolean) => void) {
+    this.onNext = () => go(this.index + 1, this.dontShowAgain.checked)
+    this.onPrev = () => go(this.index - 1, this.dontShowAgain.checked)
+    this.onSkip = () => go(-1, this.dontShowAgain.checked)
     this.prepare()
   }
 
   prepare() {
-    this._prepareWrapper()
-    this._prepareHighlight()
-    this._prepareHint()
+    this._prepareDOM()
   }
   
   mount(step: Step, index: number, total: number) {
@@ -42,22 +55,26 @@ export class Stage {
       document.body.appendChild(this.wrapper)
       this.mounted = true
     }
+    this.index = index
     this.overlay.style.display = step.clickTargetAsNext ? 'none' : 'block'
-    this.hintTitle.innerText = step.title
+    this.hintTitle.innerText = `(${index + 1}/${total}) ${step.title}`
     this.hintText.innerText = step.hint
     this.prevButton.style.display = index === 0 ? 'none' : 'inline-block'
-    this.nextButton.style.display = index === total - 1 ? 'none' : 'inline-block'
-    this.skipButton.innerText = index === total - 1  ? 'Done' : 'Skip'
+    this.skipButton.style.display = index === total - 1  ? 'none' : 'inline-block'
     if (step.clickTargetAsNext) {
-      this.nextButton.style.display = 'none'
+      this.nextButton.disabled = true
+      this.nextButton.innerText = 'Click Target'
       let target = getTarget(step.target)
       let onNext = this.onNext
       target?.addEventListener('click', function probe() {
         onNext()
-        console.info('on click');
         target?.removeEventListener('click', probe)
       })
+    } else {
+      this.nextButton.disabled = false
+      this.nextButton.innerText = index === total - 1 ? 'Done' : 'Next'
     }
+
     let targetPos = getPosition(step.target)
     let { x, y, w, h } = targetPos
     let padding = 4
@@ -75,47 +92,24 @@ export class Stage {
     document.body.removeChild(this.wrapper)
     this.mounted = false
   }
-  
-  _prepareWrapper() {
-    this.wrapper = document.createElement('div')
-    this.wrapper.classList.add('a-tour-wrapper')
-    this.overlay = document.createElement('div')
-    this.overlay.classList.add('a-tour-overlay')
-    this.wrapper.appendChild(this.overlay)
-  }
-  
-  _prepareHighlight() {
-    this.highlight = document.createElement('div')
-    this.highlight.classList.add('a-tour-highlight')
-    this.wrapper.appendChild(this.highlight)
-  }
 
-  _prepareHint() {
-    this.hint = document.createElement('div')
-    this.hint.classList.add('a-tour-hint')
-
-    this.hintTitle = document.createElement('h1')
-    this.hintTitle.classList.add('a-tour-hint-title')
-    this.hintText = document.createElement('p')
-    this.hintText.classList.add('a-tour-hint-text')
-    this.prevButton = document.createElement('button')
-    this.prevButton.innerText = 'Prev'
+  _prepareDOM() {
+    let dummy = document.createElement('div')
+    dummy.innerHTML = Template
+    this.wrapper = dummy.firstElementChild as HTMLDivElement
+    this.overlay = this.wrapper.querySelector('.a-tour-overlay') as HTMLDivElement
+    this.highlight = this.wrapper.querySelector('.a-tour-highlight') as HTMLDivElement
+    this.hint = this.wrapper.querySelector('.a-tour-hint') as HTMLDivElement
+    this.hintTitle = this.hint.querySelector('.a-tour-hint-title') as HTMLDivElement
+    this.hintText = this.hint.querySelector('.a-tour-hint-text') as HTMLDivElement
+    this.prevButton = this.wrapper.querySelector('.a-tour-btn.prev-btn') as HTMLButtonElement
+    this.nextButton = this.wrapper.querySelector('.a-tour-btn.next-btn') as HTMLButtonElement
+    this.skipButton = this.wrapper.querySelector('.a-tour-btn.skip-btn') as HTMLButtonElement
+    this.dontShowAgain = this.wrapper.querySelector('.a-tour-dont-show-again') as HTMLInputElement
     this.prevButton.addEventListener('click', this.onPrev)
-    this.nextButton = document.createElement('button')
-    this.nextButton.innerText = 'Next'
     this.nextButton.addEventListener('click', this.onNext)
-    this.skipButton = document.createElement('button')
-    this.skipButton.innerText = 'Skip'
-    this.skipButton.addEventListener('click', this.onSkip)
-    
-    this.dontShowAgain = document.createElement('input')
-    this.dontShowAgain.type = 'checkbox'
-    let label = document.createElement('label')
-    label.appendChild(this.dontShowAgain)
-    label.appendChild(document.createTextNode('Don\'t show again'))
-
-    this.hint.append(this.hintTitle, this.hintText, this.prevButton, this.nextButton, this.skipButton, label)
-    this.wrapper.appendChild(this.hint)
+    this.skipButton.addEventListener('click', () => this.onSkip(this.dontShowAgain.checked))
+    document.body.appendChild(this.wrapper)
   }
 
   _getHintPosition(targetPos: { x: number, y: number, w: number, h: number }) {
@@ -125,7 +119,6 @@ export class Stage {
       bottom = false
     }
     let offsetX = (targetPos.w - w) / 2
-    
     let overflow = getOverflowX(offsetX + targetPos.x, targetPos.x + offsetX + w)
     if (overflow.left > 0 || overflow.right > 0) {
       // adjust offset by overflow
@@ -134,7 +127,6 @@ export class Stage {
       } else { // no enough space, try to place hint at the center of the target
         offsetX -= (overflow.left + overflow.right) / 2
       }
-
     }
     return {
       x: offsetX,

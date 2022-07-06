@@ -22,10 +22,10 @@ export default class ATour {
   }
 
   start() {
-    if (getCookie('atour-dont-show-again') === 'true') {
+    if (getCookie('atour_dont_show_again') === 'true') {
       return
     }
-    this._runner.next()
+    this._runner.go(0)
   }
 
 }
