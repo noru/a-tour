@@ -29,8 +29,8 @@ type BoundingRect = {
   w: number
   h: number
 }
-export function getPosition(target: HTMLElementGetter): BoundingRect {
-  let offset = getOffset(getTarget(target)!, document.body)
+export function getPosition(target: HTMLElement): BoundingRect {
+  let offset = getOffset(target, document.body)
   return {
     x: offset.left,
     y: offset.top,

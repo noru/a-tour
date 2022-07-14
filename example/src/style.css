@@ -1,0 +1,41 @@
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+
+
+.config-wrapper {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+}
+.config-wrapper textarea {
+  font-size: 1.2em;
+  padding: 5px;
+  margin: 5px;
+  width: 300px;
+  opacity: .5; 
+}
+
+.btn-wrapper {
+  text-align: center;
+}
+
+.config-wrapper textarea:focus {
+  opacity: 1; 
+}
+
+.config-wrapper button {
+  padding: 8px 24px;
+  margin: auto;
+  border: none;
+  background-color: cadetblue;
+  color: white;
+}
+
+.config-wrapper button:hover {
+  background-color: cornflowerblue;
+}

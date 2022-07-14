@@ -30,6 +30,10 @@ export default class ATour {
     this._runner.go('next')
   }
 
+  stop() {
+    this._runner.go('close')
+  }
+
 }
 
 

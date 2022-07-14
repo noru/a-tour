@@ -1,5 +1,6 @@
 import { checkBottomSpace, getOverflowX, getPosition, getTarget, Step } from './utils/chore'
 import './styles.scss'
+import { scrollToViewport } from './utils/scrollToViewport'
 
 export type ClickAction = 'next' | 'prev' | 'close'
 
@@ -48,6 +49,11 @@ export class Updater {
       document.body.appendChild(this.wrapper)
       this.mounted = true
     }
+    let target = getTarget(step.target)
+    if (!target) {
+      throw new Error('Target not found: ' + step.target)
+    }
+    scrollToViewport(target)
     this.wrapper.id = id
     this.index = index
     this.overlay.style.display = step.clickTargetAsNext ? 'none' : 'block'
@@ -58,7 +64,6 @@ export class Updater {
     if (step.clickTargetAsNext) {
       this.nextButton.disabled = true
       this.nextButton.innerText = 'Click Target'
-      let target = getTarget(step.target)
       let onNext = this.onClick.bind(this)
       target?.addEventListener('click', function probe() {
         onNext('next')
@@ -69,7 +74,7 @@ export class Updater {
       this.nextButton.innerText = index === total - 1 ? 'Done' : 'Next'
     }
 
-    let targetPos = getPosition(step.target)
+    let targetPos = getPosition(target)
     let { x, y, w, h } = targetPos
     let padding = 4
     this.wrapper.style.top = `${y - padding}px`
@@ -128,7 +133,7 @@ export class Updater {
       // adjust offset by overflow
       if (overflow.left + overflow.right < 0) {
         // have enough space on opposite side
-        offsetX -= Math.max(overflow.left, overflow.right)
+        offsetX -= Math.max(overflow.left, overflow.right) * (overflow.left > 0 ? -1 : 1)
       } else {
         // no enough space, try to place hint at the center of the target
         offsetX -= (overflow.left + overflow.right) / 2
