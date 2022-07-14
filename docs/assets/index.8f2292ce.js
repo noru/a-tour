@@ -2,7 +2,7 @@ const p=function(){const t=document.createElement("link").relList;if(t&&t.suppor
 <p>User Onboarding, Product Walkthrough, Feature Guide, whatever you call it, is annoying but PM likes it.</p>
 <h2>Not Very Ready</h2>
 <p>This thing is working in progress. Everything may change during the development. Use it at your own discretion.</p>
-<h2>\u{1F449}<a href="https://noru.github.io/a-tour/example/dist/index.html">Demo</a>\u{1F448}</h2>
+<h2>\u{1F449}<a href="https://noru.github.io/a-tour">Demo</a>\u{1F448}</h2>
 <h2>Install</h2>
 <pre><code>npm i a-tour
 </code></pre>
