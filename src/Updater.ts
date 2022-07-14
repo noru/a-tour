@@ -1,6 +1,7 @@
 import { checkBottomSpace, getOverflowX, getPosition, getTarget, Step } from './utils/chore'
 import './styles.scss'
 import { scrollToViewport } from './utils/scrollToViewport'
+import { replaceLink } from './utils/replaceLink'
 
 export type ClickAction = 'next' | 'prev' | 'close'
 
@@ -55,13 +56,14 @@ export class Updater {
       throw new Error('Target not found: ' + step.target)
     }
     scrollToViewport(target)
+    let isLast = index === total - 1
     this.wrapper.id = id
     this.index = index
     this.overlay.style.display = step.clickTargetAsNext ? 'none' : 'block'
     this.hintTitle.innerText = `(${index + 1}/${total}) ${step.title}`
-    this.hintText.innerText = step.hint
+    this.hintText.innerHTML = replaceLink(step.hint)
     this.prevButton.style.display = index === 0 ? 'none' : 'inline-block'
-    this.skipButton.style.display = index === total - 1  ? 'none' : 'inline-block'
+    this.skipButton.style.display = isLast  ? 'none' : 'inline-block'
     if (step.clickTargetAsNext) {
       this.nextButton.disabled = true
       this.nextButton.innerText = 'Click Target'
@@ -72,7 +74,7 @@ export class Updater {
       })
     } else {
       this.nextButton.disabled = false
-      this.nextButton.innerText = index === total - 1 ? 'Done' : 'Next'
+      this.nextButton.innerText = isLast ? 'Done' : 'Next'
     }
 
     let targetPos = getPosition(target)

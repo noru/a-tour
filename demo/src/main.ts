@@ -21,7 +21,7 @@ const defaultConfig = `{
     {
       target: '#app > pre:first-of-type',
       title: 'Installation',
-      hint: 'How to install this library',
+      hint: 'How to install this library. Please go to https://www.google.com.hk/search?q=npmjs+%22a-tour%22 for more information',
       delay: 1000
     },
     {

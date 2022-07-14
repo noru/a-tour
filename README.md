@@ -50,4 +50,4 @@ npm i a-tour
 - ~~handle scroll~~
 - ~~multiple guides~~
 - hint arrow
-- hyper link in hint
+- ~~hyper link in hint~~
