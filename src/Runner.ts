@@ -40,7 +40,7 @@ export class Runner {
     } else {
       this.current = -1
     }
-    if (currentStep?.clickTargetAsNext) {
+    if (currentStep?.delay) {
       this.domUpdater.unmount()
       setTimeout(() => this.show(), currentStep.delay || 1000)
     } else {

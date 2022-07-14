@@ -22,6 +22,7 @@ const defaultConfig = `{
       target: '#app > pre:first-of-type',
       title: 'Installation',
       hint: 'How to install this library',
+      delay: 1000
     },
     {
       target: '#app > pre:nth-of-type(2) > code',
