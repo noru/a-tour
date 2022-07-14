@@ -6,6 +6,7 @@ User Onboarding, Product Walkthrough, Feature Guide, whatever you call it, is an
 
 This thing is working in progress. Everything may change during the development. Use it at your own discretion.
 
+## 👉[Demo](https://noru.github.io/a-tour/example/dist/index.html)👈
 
 ## Install
 
@@ -49,3 +50,4 @@ npm i a-tour
 - ~~handle scroll~~
 - ~~multiple guides~~
 - hint arrow
+- hyper link in hint
