@@ -1,6 +1,14 @@
 {
   "name": "a-tour",
   "description": "An annoying tutorial helper",
+  "keywords": [
+    "onboarding",
+    "tour",
+    "walkthrough",
+    "guide",
+    "intro",
+    "feature-guide"
+  ],
   "version": "0.0.3",
   "source": "src/index.ts",
   "main": "dist/index.js",
