@@ -1,6 +1,8 @@
 import { checkBottomSpace, getOverflowX, getPosition, getTarget, Step } from './utils/chore'
 import './styles.scss'
 
+export type ClickAction = 'next' | 'prev' | 'close'
+
 
 const Template = `
 <div class="a-tour-wrapper">
@@ -22,7 +24,8 @@ export class Updater {
 
   mounted = false
   index: number = -1
-  container = document.body
+  container
+  private listener = {} as {[id: string]: (action: ClickAction, dontShowAgain: boolean) => void}
 
   wrapper!: HTMLDivElement
   overlay!: HTMLDivElement
@@ -35,26 +38,17 @@ export class Updater {
   skipButton!: HTMLButtonElement
   dontShowAgain!: HTMLInputElement
 
-  onNext: () => void
-  onPrev: () => void
-  onSkip: (dontShowAgain: boolean) => void
-
-  constructor(go: (idx: number, dontShowAgain: boolean) => void) {
-    this.onNext = () => go(this.index + 1, this.dontShowAgain.checked)
-    this.onPrev = () => go(this.index - 1, this.dontShowAgain.checked)
-    this.onSkip = () => go(-1, this.dontShowAgain.checked)
-    this.prepare()
+  constructor(container: HTMLElement = document.body) {
+    this.container = container
+    this.prepareDOM()
   }
 
-  prepare() {
-    this._prepareDOM()
-  }
-  
-  mount(step: Step, index: number, total: number) {
+  mount(id: string, step: Step, index: number, total: number) {
     if (!this.mounted) {
       document.body.appendChild(this.wrapper)
       this.mounted = true
     }
+    this.wrapper.id = id
     this.index = index
     this.overlay.style.display = step.clickTargetAsNext ? 'none' : 'block'
     this.hintTitle.innerText = `(${index + 1}/${total}) ${step.title}`
@@ -65,9 +59,9 @@ export class Updater {
       this.nextButton.disabled = true
       this.nextButton.innerText = 'Click Target'
       let target = getTarget(step.target)
-      let onNext = this.onNext
+      let onNext = this.onClick.bind(this)
       target?.addEventListener('click', function probe() {
-        onNext()
+        onNext('next')
         target?.removeEventListener('click', probe)
       })
     } else {
@@ -84,7 +78,7 @@ export class Updater {
     this.highlight.style.maxWidth = `${w + padding * 2}px`
     this.highlight.style.minHeight = `${h + padding * 2}px`
     this.highlight.style.maxHeight = `${h + padding * 2}px`
-    let {x: tx, y: ty} = this._getHintPosition(targetPos)
+    let {x: tx, y: ty} = this.getHintPosition(targetPos)
     this.hint.style.transform = `translate(${tx}px, ${ty}px)`
   }
 
@@ -93,7 +87,18 @@ export class Updater {
     this.mounted = false
   }
 
-  _prepareDOM() {
+  registerListener(id: string, listener: () => void) {
+    this.listener[id] = listener
+  }
+
+  private onClick(action: ClickAction) {
+    let listener = this.listener[this.wrapper.id]
+    if (listener) {
+      listener(action, this.dontShowAgain.checked)
+    }
+  }
+
+  private prepareDOM() {
     let dummy = document.createElement('div')
     dummy.innerHTML = Template
     this.wrapper = dummy.firstElementChild as HTMLDivElement
@@ -106,13 +111,12 @@ export class Updater {
     this.nextButton = this.wrapper.querySelector('.a-tour-btn.next-btn') as HTMLButtonElement
     this.skipButton = this.wrapper.querySelector('.a-tour-btn.skip-btn') as HTMLButtonElement
     this.dontShowAgain = this.wrapper.querySelector('.a-tour-dont-show-again') as HTMLInputElement
-    this.prevButton.addEventListener('click', this.onPrev)
-    this.nextButton.addEventListener('click', this.onNext)
-    this.skipButton.addEventListener('click', () => this.onSkip(this.dontShowAgain.checked))
-    document.body.appendChild(this.wrapper)
+    this.prevButton.addEventListener('click', () => this.onClick('prev'))
+    this.nextButton.addEventListener('click', () => this.onClick('next'))
+    this.skipButton.addEventListener('click', () => this.onClick('close'))
   }
 
-  _getHintPosition(targetPos: { x: number, y: number, w: number, h: number }) {
+  private getHintPosition(targetPos: { x: number, y: number, w: number, h: number }) {
     let { width: w, height: h } = this.hint.getBoundingClientRect()
     let bottom = true // prefer place hint at bottom of the target
     if (!checkBottomSpace(targetPos, h)) {
@@ -122,9 +126,11 @@ export class Updater {
     let overflow = getOverflowX(offsetX + targetPos.x, targetPos.x + offsetX + w)
     if (overflow.left > 0 || overflow.right > 0) {
       // adjust offset by overflow
-      if (overflow.left + overflow.right < 0) { // have enough space on opposite side
+      if (overflow.left + overflow.right < 0) {
+        // have enough space on opposite side
         offsetX -= Math.max(overflow.left, overflow.right)
-      } else { // no enough space, try to place hint at the center of the target
+      } else {
+        // no enough space, try to place hint at the center of the target
         offsetX -= (overflow.left + overflow.right) / 2
       }
     }
@@ -137,4 +143,4 @@ export class Updater {
 }
 
 
-
+export default new Updater()

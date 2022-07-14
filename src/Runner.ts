@@ -1,9 +1,15 @@
-import { Step } from "./utils/chore"
-import { Updater } from "./Updater"
+import { getTarget, Step } from "./utils/chore"
 import { setCookie } from "./utils/cookie"
+import { Options } from "."
+import {ClickAction, Updater} from "./Updater"
+
+// cache DOM per container
+const updaterCache = new WeakMap
 
 export class Runner {
-
+  
+  private domUpdater
+  private id = 'default'
   steps: Step[]
   current = -1
 
@@ -11,19 +17,31 @@ export class Runner {
     return this.steps[this.current]
   }
 
-  _stage = new Updater(this.go.bind(this))
-  constructor(steps: Step[]) {
-    this.steps = steps
+  constructor(options: Options) {
+    this.id = options.id
+    this.steps = options.steps
+    let container = getTarget(options.container) || document.body
+    if (!updaterCache.get(container)) {
+      updaterCache.set(container, new Updater(container))
+    }
+    this.domUpdater = updaterCache.get(container)
+    this.domUpdater.registerListener(this.id, this.go.bind(this))
   }
 
-  go(next: number, dontShowAgain = false) {
+  go(action: ClickAction, dontShowAgain = false) {
     if (dontShowAgain) {
-      setCookie('atour_dont_show_again', 'true', 365)
+      setCookie('atour_inactive_' + this.id, 'true', 365)
     }
     let currentStep = this.step
-    this.current = next
+    if (action === 'next') {
+      this.current++
+    } else if (action === 'prev') {
+      this.current--
+    } else {
+      this.current = -1
+    }
     if (currentStep?.clickTargetAsNext) {
-      this._stage.unmount()
+      this.domUpdater.unmount()
       setTimeout(() => this.show(), currentStep.delay || 1000)
     } else {
       this.show()
@@ -32,10 +50,10 @@ export class Runner {
 
   show() {
     if (!this.step) {
-      this._stage.unmount()
+      this.domUpdater.unmount()
       return
     }
-    this._stage.mount(this.step, this.current, this.steps.length)
+    this.domUpdater.mount(this.id, this.step, this.current, this.steps.length)
   }
 
 }

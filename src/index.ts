@@ -2,14 +2,16 @@ import { HTMLElementGetter, Step } from "./utils/chore"
 import { Runner } from "./Runner"
 import { getCookie } from "./utils/cookie"
 
-interface Options {
+export interface Options {
+  id: string
   container: HTMLElementGetter
   steps: Step[]
 }
 
 export default class ATour {
 
-  _options: Options = {
+  private options: Options = {
+    id: 'default',
     container: () => document.body,
     steps: []
   }
@@ -17,15 +19,15 @@ export default class ATour {
   private _runner: Runner
 
   constructor(options: Partial<Options> = {}) {
-    Object.assign(this._options, options)
-    this._runner = new Runner(this._options.steps)
+    Object.assign(this.options, options)
+    this._runner = new Runner(this.options)
   }
 
   start() {
-    if (getCookie('atour_dont_show_again') === 'true') {
+    if (getCookie('atour_inactive_' + this.options.id) === 'true') {
       return
     }
-    this._runner.go(0)
+    this._runner.go('next')
   }
 
 }
