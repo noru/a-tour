@@ -19,18 +19,18 @@ const defaultConfig = `{
       hint: 'This lib is not very ready',
     },
     {
-      target: '#app > pre:nth-child(6)',
+      target: '#app > pre:first-of-type',
       title: 'Installation',
       hint: 'How to install this library',
     },
     {
-      target: '#app > pre:nth-child(8) > code',
+      target: '#app > pre:nth-of-type(2) > code',
       title: 'Usage',
       hint: 'A minimum example of usage',
     },
     {
-      target: '#app > h2:nth-child(11)',
-      title: 'TODO',
+      target: '#app > h2:nth-of-type(6)',
+      title: 'TODO items',
       hint: 'This an element out side of the screen',
     }
   ],

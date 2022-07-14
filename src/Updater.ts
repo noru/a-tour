@@ -51,6 +51,7 @@ export class Updater {
     }
     let target = getTarget(step.target)
     if (!target) {
+      alert('Target not found: ' + step.target)
       throw new Error('Target not found: ' + step.target)
     }
     scrollToViewport(target)
